@@ -11,7 +11,7 @@
   "dependencies": {
     "@tanstack/react-table": "^8.21.3",
     "lucide-react": "^0.545.0",
-    "next": "15.5.4",
+    "next": "15.5.9",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "recharts": "^3.2.1"
@@ -23,7 +23,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "15.5.4",
+    "eslint-config-next": "15.5.9",
     "tailwindcss": "^4",
     "typescript": "^5"
   }
