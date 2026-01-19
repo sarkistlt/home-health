@@ -3,6 +3,12 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
+  LayoutDashboard,
+  DollarSign,
+  Shield,
+  Briefcase,
+  FileText,
+  Users,
   TrendingUp,
   Search,
   LogOut,
@@ -11,6 +17,12 @@ import {
 import { useAuth } from '@/contexts/AuthContext'
 
 const navigationItems = [
+  { name: 'Dashboard', href: '/', icon: LayoutDashboard },
+  { name: 'Revenue', href: '/revenue', icon: DollarSign },
+  { name: 'Insurance', href: '/insurance', icon: Shield },
+  { name: 'Services', href: '/services', icon: Briefcase },
+  { name: 'Claims', href: '/claims', icon: FileText },
+  { name: 'Providers', href: '/providers', icon: Users },
   { name: 'Data Explorer', href: '/explorer', icon: Search },
   { name: 'Profitability', href: '/profitability', icon: TrendingUp },
 ]

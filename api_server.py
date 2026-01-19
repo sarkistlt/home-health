@@ -6,6 +6,8 @@ FastAPI server that provides analytics data to the Next.js frontend.
 Serves all pivot tables and summary metrics as JSON endpoints.
 """
 
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -36,11 +38,22 @@ from auth import (
 # Check if running in production
 IS_PRODUCTION = os.getenv("ENVIRONMENT", "development").lower() == "production"
 
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Lifespan context manager for startup/shutdown events."""
+    # Startup: Load analytics data
+    load_latest_analytics()
+    yield
+    # Shutdown: cleanup would go here if needed
+
+
 # Disable OpenAPI docs in production for security
 app = FastAPI(
     title="Home Health Analytics API",
     description="API for home health billing analytics and pivot tables",
     version="1.0.0",
+    lifespan=lifespan,
     docs_url=None if IS_PRODUCTION else "/docs",
     redoc_url=None if IS_PRODUCTION else "/redoc",
     openapi_url=None if IS_PRODUCTION else "/openapi.json"
@@ -141,11 +154,6 @@ def load_latest_analytics():
     except Exception as e:
         print(f"Error loading analytics: {e}")
         return False
-
-@app.on_event("startup")
-async def startup_event():
-    """Load analytics data on startup."""
-    load_latest_analytics()
 
 @app.get("/")
 async def root():
