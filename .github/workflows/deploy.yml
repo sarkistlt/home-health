@@ -16,13 +16,11 @@ on:
           - api
           - frontend
 
-env:
-  RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-
 jobs:
   deploy-api:
     name: Deploy API
     runs-on: ubuntu-latest
+    environment: production
     if: github.event_name == 'push' || github.event.inputs.service == 'all' || github.event.inputs.service == 'api'
     steps:
       - name: Checkout
@@ -33,10 +31,13 @@ jobs:
 
       - name: Deploy API Service
         run: railway up --service ${{ vars.RAILWAY_API_SERVICE_NAME || 'api' }} --detach
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
 
   deploy-frontend:
     name: Deploy Frontend
     runs-on: ubuntu-latest
+    environment: production
     if: github.event_name == 'push' || github.event.inputs.service == 'all' || github.event.inputs.service == 'frontend'
     steps:
       - name: Checkout
@@ -48,3 +49,5 @@ jobs:
       - name: Deploy Frontend Service
         working-directory: home-health-dashboard
         run: railway up --service ${{ vars.RAILWAY_FRONTEND_SERVICE_NAME || 'frontend' }} --detach
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
