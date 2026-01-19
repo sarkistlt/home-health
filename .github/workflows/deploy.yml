@@ -7,8 +7,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  deploy-api:
-    name: Deploy API
+  deploy-backend:
+    name: Deploy Backend
     runs-on: ubuntu-latest
     environment: production
     steps:
@@ -18,7 +18,24 @@ jobs:
       - name: Install Railway CLI
         run: npm install -g @railway/cli
 
-      - name: Deploy API
-        run: railway up --service "home-health" --detach
+      - name: Deploy Backend
+        run: railway up --service "backend" --detach
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+
+  deploy-frontend:
+    name: Deploy Frontend
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Railway CLI
+        run: npm install -g @railway/cli
+
+      - name: Deploy Frontend
+        working-directory: home-health-dashboard
+        run: railway up --service "frontend" --detach
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}

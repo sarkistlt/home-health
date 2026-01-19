@@ -55,9 +55,8 @@ if cors_origins_env:
 elif IS_PRODUCTION:
     # Production defaults - Railway URLs
     CORS_ORIGINS = [
+        "https://hh.up.railway.app",
         "https://home-health-production.up.railway.app",
-        "https://home-health-dashboard-production.up.railway.app",
-        "https://frontend-production.up.railway.app",
     ]
 else:
     # Development defaults
