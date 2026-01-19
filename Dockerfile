@@ -14,10 +14,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
 COPY *.py ./
-COPY data/ ./data/ 2>/dev/null || true
-COPY analytics_output/ ./analytics_output/ 2>/dev/null || true
 
-# Create necessary directories
+# Create necessary directories (data will be mounted or added separately)
 RUN mkdir -p data/pdfs data/excel analytics_output outputs
 
 # Environment variables
