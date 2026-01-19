@@ -6,13 +6,6 @@ on:
       - main
   workflow_dispatch:
 
-env:
-  # Set these in GitHub repo Settings > Secrets and variables > Actions > Variables
-  # RAILWAY_API_SERVICE: Your API service name from Railway dashboard
-  # RAILWAY_FRONTEND_SERVICE: Your Frontend service name from Railway dashboard
-  RAILWAY_API_SERVICE: ${{ vars.RAILWAY_API_SERVICE }}
-  RAILWAY_FRONTEND_SERVICE: ${{ vars.RAILWAY_FRONTEND_SERVICE }}
-
 jobs:
   deploy-api:
     name: Deploy API
@@ -26,23 +19,6 @@ jobs:
         run: npm install -g @railway/cli
 
       - name: Deploy API
-        run: railway up --service "$RAILWAY_API_SERVICE" --detach
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-
-  deploy-frontend:
-    name: Deploy Frontend
-    runs-on: ubuntu-latest
-    environment: production
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Install Railway CLI
-        run: npm install -g @railway/cli
-
-      - name: Deploy Frontend
-        working-directory: home-health-dashboard
-        run: railway up --service "$RAILWAY_FRONTEND_SERVICE" --detach
+        run: railway up --service "home-health" --detach
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
