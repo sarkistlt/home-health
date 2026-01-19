@@ -8,7 +8,7 @@
     "install:dashboard": "cd home-health-dashboard && pnpm install",
     "install:python": "pip install -r requirements.txt",
     "install:all": "pnpm install && pnpm install:python",
-    "build": "pnpm build:analytics && pnpm build:dashboard",
+    "build": "pnpm install:python && pnpm build:analytics && pnpm build:dashboard",
     "build:analytics": "python pivot_analytics.py",
     "build:dashboard": "cd home-health-dashboard && pnpm build",
     "start": "concurrently -n api,frontend -c blue,green \"pnpm start:api\" \"pnpm start:frontend\"",

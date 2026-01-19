@@ -61,7 +61,8 @@ export default function ProfitabilityPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('http://localhost:8000/profitability/analysis')
+        const { apiFetch } = await import('@/lib/api')
+        const response = await apiFetch('/profitability/analysis')
         if (!response.ok) throw new Error('Failed to fetch profitability data')
         const profitabilityData = await response.json()
         setData(profitabilityData)
@@ -87,7 +88,8 @@ export default function ProfitabilityPage() {
   const handleExport = async () => {
     setExporting(true)
     try {
-      const response = await fetch('http://localhost:8000/profitability/export')
+      const { apiFetch } = await import('@/lib/api')
+      const response = await apiFetch('/profitability/export')
       if (!response.ok) throw new Error('Export failed')
 
       const blob = await response.blob()

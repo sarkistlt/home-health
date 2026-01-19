@@ -54,6 +54,7 @@ package-lock.json
 # ============================================
 data/
 analytics_output/
+outputs/
 
 # ============================================
 # Environment Variables

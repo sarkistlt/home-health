@@ -6,11 +6,12 @@ FastAPI server that provides analytics data to the Next.js frontend.
 Serves all pivot tables and summary metrics as JSON endpoints.
 """
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 import pandas as pd
 import json
+import os
 from pathlib import Path
 from datetime import datetime
 from typing import Dict, List, Optional
@@ -23,16 +24,41 @@ from pivot_analytics import HomeHealthAnalytics
 from profitability_analysis import ProfitabilityAnalyzer
 from fastapi.responses import FileResponse
 
+# Import authentication
+from auth import (
+    login as auth_login,
+    get_current_user,
+    User,
+    LoginRequest,
+    Token
+)
+
+# Check if running in production
+IS_PRODUCTION = os.getenv("ENVIRONMENT", "development").lower() == "production"
+
+# Disable OpenAPI docs in production for security
 app = FastAPI(
     title="Home Health Analytics API",
     description="API for home health billing analytics and pivot tables",
-    version="1.0.0"
+    version="1.0.0",
+    docs_url=None if IS_PRODUCTION else "/docs",
+    redoc_url=None if IS_PRODUCTION else "/redoc",
+    openapi_url=None if IS_PRODUCTION else "/openapi.json"
 )
 
-# Enable CORS for Next.js frontend
+# CORS Configuration
+# In production, set CORS_ORIGINS environment variable with comma-separated allowed origins
+# Example: CORS_ORIGINS=https://yourdomain.com,https://app.yourdomain.com
+cors_origins_env = os.getenv("CORS_ORIGINS", "")
+if cors_origins_env:
+    CORS_ORIGINS = [origin.strip() for origin in cors_origins_env.split(",")]
+else:
+    # Development defaults
+    CORS_ORIGINS = ["http://localhost:3000", "http://localhost:3001", "http://localhost:3100"]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:3001", "http://localhost:3100"],  # Next.js dev server
+    allow_origins=CORS_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -114,6 +140,14 @@ async def startup_event():
 @app.get("/")
 async def root():
     """Root endpoint with API information."""
+    # In production, don't expose endpoint list
+    if IS_PRODUCTION:
+        return {
+            "message": "Home Health Analytics API",
+            "version": "1.0.0",
+            "status": "running"
+        }
+
     return {
         "message": "Home Health Analytics API",
         "version": "1.0.0",
@@ -130,8 +164,45 @@ async def root():
         "last_updated": last_updated.isoformat() if last_updated else None
     }
 
+
+# ============ AUTHENTICATION ENDPOINTS ============
+
+@app.post("/auth/login", response_model=Token)
+async def login(request: LoginRequest):
+    """
+    Authenticate user and return JWT token.
+
+    Default credentials (for development only):
+    - Username: admin
+    - Password: homehealth2024
+
+    In production, set AUTH_USERNAME and AUTH_PASSWORD environment variables.
+    """
+    token = auth_login(request.username, request.password)
+
+    if not token:
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    return token
+
+
+@app.get("/auth/verify")
+async def verify_auth(current_user: User = Depends(get_current_user)):
+    """Verify that the current token is valid."""
+    return {"authenticated": True, "username": current_user.username}
+
+
+@app.get("/auth/me")
+async def get_me(current_user: User = Depends(get_current_user)):
+    """Get current user information."""
+    return {"username": current_user.username}
+
 @app.get("/analytics/summary")
-async def get_summary():
+async def get_summary(current_user: User = Depends(get_current_user)):
     """Get summary metrics for the dashboard."""
     if not summary_metrics:
         load_latest_analytics()
@@ -142,7 +213,7 @@ async def get_summary():
     return summary_metrics
 
 @app.get("/analytics/revenue-by-claim")
-async def get_revenue_by_claim():
+async def get_revenue_by_claim(current_user: User = Depends(get_current_user)):
     """Get revenue by claim analysis."""
     if 'Revenue by Claim' not in analytics_data:
         load_latest_analytics()
@@ -153,7 +224,7 @@ async def get_revenue_by_claim():
     return analytics_data['Revenue by Claim']
 
 @app.get("/analytics/service-costs")
-async def get_service_costs():
+async def get_service_costs(current_user: User = Depends(get_current_user)):
     """Get service costs analysis."""
     if 'Service Costs' not in analytics_data:
         load_latest_analytics()
@@ -164,7 +235,7 @@ async def get_service_costs():
     return analytics_data['Service Costs']
 
 @app.get("/analytics/profitability-by-patient")
-async def get_profitability_by_patient():
+async def get_profitability_by_patient(current_user: User = Depends(get_current_user)):
     """Get profitability by patient analysis."""
     if 'Profitability by Patient' not in analytics_data:
         load_latest_analytics()
@@ -175,7 +246,7 @@ async def get_profitability_by_patient():
     return analytics_data['Profitability by Patient']
 
 @app.get("/analytics/provider-performance")
-async def get_provider_performance():
+async def get_provider_performance(current_user: User = Depends(get_current_user)):
     """Get provider performance analysis."""
     if 'Provider Performance' not in analytics_data:
         load_latest_analytics()
@@ -186,7 +257,7 @@ async def get_provider_performance():
     return analytics_data['Provider Performance']
 
 @app.get("/analytics/code-performance")
-async def get_code_performance():
+async def get_code_performance(current_user: User = Depends(get_current_user)):
     """Get claim code performance analysis."""
     if 'Code Performance' not in analytics_data:
         load_latest_analytics()
@@ -197,7 +268,7 @@ async def get_code_performance():
     return analytics_data['Code Performance']
 
 @app.get("/analytics/service-cost-summary")
-async def get_service_cost_summary():
+async def get_service_cost_summary(current_user: User = Depends(get_current_user)):
     """Get service cost summary."""
     if 'Service Cost Summary' not in analytics_data:
         load_latest_analytics()
@@ -208,7 +279,7 @@ async def get_service_cost_summary():
     return analytics_data['Service Cost Summary']
 
 @app.get("/analytics/insurance-performance")
-async def get_insurance_performance():
+async def get_insurance_performance(current_user: User = Depends(get_current_user)):
     """Get insurance payer performance."""
     if 'Insurance Payer Performance' not in analytics_data:
         load_latest_analytics()
@@ -219,7 +290,7 @@ async def get_insurance_performance():
     return analytics_data['Insurance Payer Performance']
 
 @app.get("/analytics/patient/{patient_name}")
-async def get_patient_details(patient_name: str):
+async def get_patient_details(patient_name: str, current_user: User = Depends(get_current_user)):
     """Get detailed information for a specific patient."""
     if not analytics_data:
         load_latest_analytics()
@@ -260,7 +331,7 @@ async def get_patient_details(patient_name: str):
         raise HTTPException(status_code=500, detail=f"Error retrieving patient data: {str(e)}")
 
 @app.post("/process-pdfs")
-async def process_pdfs(request: ProcessPDFRequest):
+async def process_pdfs(request: ProcessPDFRequest, current_user: User = Depends(get_current_user)):
     """Process PDFs and regenerate analytics."""
     try:
         # Extract data from PDFs
@@ -293,7 +364,7 @@ async def process_pdfs(request: ProcessPDFRequest):
         raise HTTPException(status_code=500, detail=f"Error processing PDFs: {str(e)}")
 
 @app.get("/analytics/refresh")
-async def refresh_analytics():
+async def refresh_analytics(current_user: User = Depends(get_current_user)):
     """Refresh analytics data from the latest files."""
     success = load_latest_analytics()
 
@@ -310,7 +381,7 @@ async def refresh_analytics():
 # ============ PROFITABILITY ENDPOINTS ============
 
 @app.get("/profitability/analysis")
-async def get_profitability_analysis():
+async def get_profitability_analysis(current_user: User = Depends(get_current_user)):
     """Get complete profitability analysis from Claims and Employee Costs."""
     try:
         analyzer = ProfitabilityAnalyzer()
@@ -325,7 +396,7 @@ async def get_profitability_analysis():
 
 
 @app.get("/profitability/overall")
-async def get_profitability_overall():
+async def get_profitability_overall(current_user: User = Depends(get_current_user)):
     """Get overall profitability summary."""
     try:
         analyzer = ProfitabilityAnalyzer()
@@ -336,7 +407,7 @@ async def get_profitability_overall():
 
 
 @app.get("/profitability/by-physician")
-async def get_profitability_by_physician():
+async def get_profitability_by_physician(current_user: User = Depends(get_current_user)):
     """Get profitability breakdown by physician."""
     try:
         analyzer = ProfitabilityAnalyzer()
@@ -347,7 +418,7 @@ async def get_profitability_by_physician():
 
 
 @app.get("/profitability/unmatched")
-async def get_unmatched_patients():
+async def get_unmatched_patients(current_user: User = Depends(get_current_user)):
     """Get unmatched patient costs (data inconsistencies)."""
     try:
         analyzer = ProfitabilityAnalyzer()
@@ -358,7 +429,7 @@ async def get_unmatched_patients():
 
 
 @app.get("/profitability/overhead")
-async def get_overhead_costs():
+async def get_overhead_costs(current_user: User = Depends(get_current_user)):
     """Get overhead/admin costs."""
     try:
         analyzer = ProfitabilityAnalyzer()
@@ -369,7 +440,7 @@ async def get_overhead_costs():
 
 
 @app.get("/profitability/export")
-async def export_profitability_excel():
+async def export_profitability_excel(current_user: User = Depends(get_current_user)):
     """Export profitability analysis to Excel and return the file."""
     try:
         analyzer = ProfitabilityAnalyzer()
@@ -387,7 +458,7 @@ async def export_profitability_excel():
 # ============ DATA EXPLORER ENDPOINTS ============
 
 @app.get("/explorer/claims")
-async def get_claims_data():
+async def get_claims_data(current_user: User = Depends(get_current_user)):
     """Get all claims data for exploration."""
     try:
         claims = pd.read_csv("data/excel/Claim List.csv")
@@ -411,7 +482,7 @@ async def get_claims_data():
 
 
 @app.get("/explorer/costs")
-async def get_costs_data():
+async def get_costs_data(current_user: User = Depends(get_current_user)):
     """Get all employee costs data for exploration."""
     try:
         costs = pd.read_excel("data/excel/employee_costs.xlsx")
@@ -433,7 +504,7 @@ async def get_costs_data():
 
 
 @app.get("/explorer/monthly-summary")
-async def get_monthly_summary():
+async def get_monthly_summary(current_user: User = Depends(get_current_user)):
     """Get monthly revenue and costs summary for charts."""
     try:
         claims = pd.read_csv("data/excel/Claim List.csv")
@@ -480,7 +551,7 @@ async def get_monthly_summary():
 
 
 @app.get("/explorer/physicians")
-async def get_physicians_list():
+async def get_physicians_list(current_user: User = Depends(get_current_user)):
     """Get list of physicians for filtering."""
     try:
         claims = pd.read_csv("data/excel/Claim List.csv")
@@ -491,7 +562,7 @@ async def get_physicians_list():
 
 
 @app.get("/explorer/export")
-async def export_explorer_data():
+async def export_explorer_data(current_user: User = Depends(get_current_user)):
     """Export patient-level summary to Excel."""
     try:
         from profitability_analysis import ProfitabilityAnalyzer

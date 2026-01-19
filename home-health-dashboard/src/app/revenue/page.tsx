@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { ArrowUpIcon, ArrowDownIcon, Search } from 'lucide-react'
+import { apiFetch } from '@/lib/api'
 
 interface RevenueData {
   'Patient Name': string
@@ -30,7 +31,7 @@ export default function RevenuePage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('http://localhost:8000/analytics/revenue-by-claim')
+        const response = await apiFetch('/analytics/revenue-by-claim')
         if (!response.ok) throw new Error('Failed to fetch revenue data')
         const revenueData = await response.json()
         setData(revenueData)

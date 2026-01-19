@@ -29,7 +29,8 @@ export default function Dashboard() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('http://localhost:8000/analytics/summary')
+        const { apiFetch } = await import('@/lib/api')
+        const response = await apiFetch('/analytics/summary')
         if (!response.ok) throw new Error('Failed to fetch data')
         const data = await response.json()
         setMetrics(data)

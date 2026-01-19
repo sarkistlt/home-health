@@ -4,8 +4,11 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
   TrendingUp,
-  Search
+  Search,
+  LogOut,
+  User
 } from 'lucide-react'
+import { useAuth } from '@/contexts/AuthContext'
 
 const navigationItems = [
   { name: 'Data Explorer', href: '/explorer', icon: Search },
@@ -14,9 +17,10 @@ const navigationItems = [
 
 export default function Sidebar() {
   const pathname = usePathname()
+  const { username, logout } = useAuth()
 
   return (
-    <div className="w-64 bg-white shadow-lg">
+    <div className="w-64 bg-white shadow-lg flex flex-col h-full">
       <div className="p-6">
         <h1 className="text-xl font-bold text-gray-900">
           Home Health Analytics
@@ -26,7 +30,7 @@ export default function Sidebar() {
         </p>
       </div>
 
-      <nav className="mt-6">
+      <nav className="mt-6 flex-1">
         <div className="px-3">
           {navigationItems.map((item) => {
             const isActive = pathname === item.href
@@ -52,15 +56,24 @@ export default function Sidebar() {
         </div>
       </nav>
 
-      <div className="absolute bottom-6 left-6 right-6">
-        <div className="bg-blue-50 rounded-lg p-4">
-          <h3 className="text-sm font-medium text-blue-900">
-            Last Updated
-          </h3>
-          <p className="text-xs text-blue-700 mt-1">
-            {new Date().toLocaleDateString()}
-          </p>
+      {/* User Info and Logout */}
+      <div className="p-4 border-t border-gray-200">
+        <div className="flex items-center mb-3">
+          <div className="p-2 bg-blue-50 rounded-full">
+            <User className="h-4 w-4 text-blue-600" />
+          </div>
+          <span className="ml-2 text-sm font-medium text-gray-700">
+            {username}
+          </span>
         </div>
+        <button
+          onClick={logout}
+          className="w-full flex items-center justify-center px-3 py-2 text-sm font-medium text-red-600
+                   bg-red-50 hover:bg-red-100 rounded-md transition-colors"
+        >
+          <LogOut className="h-4 w-4 mr-2" />
+          Sign Out
+        </button>
       </div>
     </div>
   )

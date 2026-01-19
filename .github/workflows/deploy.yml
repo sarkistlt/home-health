@@ -1,0 +1,50 @@
+name: Deploy to Railway
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      service:
+        description: 'Service to deploy (api, frontend, or all)'
+        required: false
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - api
+          - frontend
+
+env:
+  RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+
+jobs:
+  deploy-api:
+    name: Deploy API
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event.inputs.service == 'all' || github.event.inputs.service == 'api'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Railway CLI
+        run: npm install -g @railway/cli
+
+      - name: Deploy API Service
+        run: railway up --service ${{ vars.RAILWAY_API_SERVICE_NAME || 'api' }} --detach
+
+  deploy-frontend:
+    name: Deploy Frontend
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event.inputs.service == 'all' || github.event.inputs.service == 'frontend'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Railway CLI
+        run: npm install -g @railway/cli
+
+      - name: Deploy Frontend Service
+        working-directory: home-health-dashboard
+        run: railway up --service ${{ vars.RAILWAY_FRONTEND_SERVICE_NAME || 'frontend' }} --detach

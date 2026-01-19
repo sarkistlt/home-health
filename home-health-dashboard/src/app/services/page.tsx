@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { ArrowUpIcon, ArrowDownIcon, Search, DollarSign } from 'lucide-react'
+import { apiFetch } from '@/lib/api'
 
 interface ServiceCostData {
   'Service Type': string
@@ -26,7 +27,7 @@ export default function ServicesPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('http://localhost:8000/analytics/service-costs')
+        const response = await apiFetch('/analytics/service-costs')
         if (!response.ok) throw new Error('Failed to fetch service costs data')
         const serviceCostData = await response.json()
         setData(serviceCostData)

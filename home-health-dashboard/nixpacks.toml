@@ -1,0 +1,17 @@
+# Nixpacks configuration for Railway deployment
+# This file tells Railway how to build and run the Next.js frontend service
+
+[phases.setup]
+nixPkgs = ["nodejs_20"]
+
+[phases.install]
+cmds = ["corepack enable", "corepack prepare pnpm@9 --activate", "pnpm install --frozen-lockfile"]
+
+[phases.build]
+cmds = ["pnpm build"]
+
+[start]
+cmd = "pnpm start"
+
+[variables]
+NODE_ENV = "production"

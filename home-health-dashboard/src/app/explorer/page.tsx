@@ -80,11 +80,13 @@ export default function ExplorerPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        const { apiFetch } = await import('@/lib/api')
+
         const [claimsRes, costsRes, monthlyRes, physiciansRes] = await Promise.all([
-          fetch('http://localhost:8000/explorer/claims'),
-          fetch('http://localhost:8000/explorer/costs'),
-          fetch('http://localhost:8000/explorer/monthly-summary'),
-          fetch('http://localhost:8000/explorer/physicians')
+          apiFetch('/explorer/claims'),
+          apiFetch('/explorer/costs'),
+          apiFetch('/explorer/monthly-summary'),
+          apiFetch('/explorer/physicians')
         ])
 
         if (!claimsRes.ok || !costsRes.ok || !monthlyRes.ok) {
@@ -116,7 +118,8 @@ export default function ExplorerPage() {
   const handleExport = async () => {
     setExporting(true)
     try {
-      const response = await fetch('http://localhost:8000/explorer/export')
+      const { apiFetch } = await import('@/lib/api')
+      const response = await apiFetch('/explorer/export')
       if (!response.ok) throw new Error('Export failed')
 
       const blob = await response.blob()

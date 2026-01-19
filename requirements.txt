@@ -18,3 +18,7 @@ pyyaml
 fuzzywuzzy
 python-Levenshtein
 python-multipart
+
+# Authentication
+python-jose[cryptography]
+passlib[bcrypt]
