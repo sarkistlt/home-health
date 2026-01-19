@@ -603,7 +603,7 @@ export default function ExplorerPage() {
                   <XAxis dataKey="month" tick={{ fontSize: 12 }} />
                   <YAxis tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`} />
                   <Tooltip
-                    formatter={(value: number) => formatCurrency(value)}
+                    formatter={(value) => formatCurrency(Number(value))}
                     labelFormatter={(label) => `Month: ${label}`}
                   />
                   <Legend />
@@ -620,7 +620,7 @@ export default function ExplorerPage() {
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="month" tick={{ fontSize: 12 }} />
                   <YAxis tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`} />
-                  <Tooltip formatter={(value: number) => formatCurrency(value)} />
+                  <Tooltip formatter={(value) => formatCurrency(Number(value))} />
                   <Legend />
                   <Line type="monotone" dataKey="profit" name="Profit" stroke="#8b5cf6" strokeWidth={2} />
                   <Line type="monotone" dataKey="billed" name="Billed" stroke="#3b82f6" strokeWidth={1} strokeDasharray="5 5" />
@@ -764,7 +764,7 @@ export default function ExplorerPage() {
                           <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
                         ))}
                       </Pie>
-                      <Tooltip formatter={(value: number) => formatCurrency(value)} />
+                      <Tooltip formatter={(value) => formatCurrency(Number(value))} />
                     </PieChart>
                   </ResponsiveContainer>
                 </div>
