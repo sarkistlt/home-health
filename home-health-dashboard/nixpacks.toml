@@ -11,7 +11,7 @@ cmds = ["corepack enable", "corepack prepare pnpm@9 --activate", "pnpm install -
 cmds = ["pnpm build"]
 
 [start]
-cmd = "pnpm start"
+cmd = "node_modules/.bin/next start -p $PORT"
 
 [variables]
 NODE_ENV = "production"

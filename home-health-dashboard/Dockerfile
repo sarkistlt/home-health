@@ -29,7 +29,7 @@ FROM base AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
-ENV PORT=3000
+# PORT will be set by Railway at runtime
 
 # Create non-root user
 RUN addgroup --system --gid 1001 nodejs
@@ -44,4 +44,5 @@ USER nextjs
 
 EXPOSE 3000
 
+# The standalone server reads PORT from environment
 CMD ["node", "server.js"]
