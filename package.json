@@ -1,0 +1,30 @@
+{
+  "name": "home-health-analytics",
+  "version": "1.0.0",
+  "description": "Home Health Analytics System - Backend API and Frontend Dashboard",
+  "private": true,
+  "scripts": {
+    "postinstall": "pnpm install:dashboard",
+    "install:dashboard": "cd home-health-dashboard && pnpm install",
+    "install:python": "pip install -r requirements.txt",
+    "install:all": "pnpm install && pnpm install:python",
+    "build": "pnpm build:analytics && pnpm build:dashboard",
+    "build:analytics": "python pivot_analytics.py",
+    "build:dashboard": "cd home-health-dashboard && pnpm build",
+    "start": "concurrently -n api,frontend -c blue,green \"pnpm start:api\" \"pnpm start:frontend\"",
+    "start:api": "python api_server.py",
+    "start:frontend": "cd home-health-dashboard && pnpm dev",
+    "start:prod": "concurrently -n api,frontend -c blue,green \"pnpm start:api\" \"pnpm start:frontend:prod\"",
+    "start:frontend:prod": "cd home-health-dashboard && pnpm start",
+    "dev": "pnpm start",
+    "lint": "cd home-health-dashboard && pnpm lint"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "packageManager": "pnpm@9.15.0"
+}

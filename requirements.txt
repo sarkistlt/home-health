@@ -1,0 +1,20 @@
+# Data Processing
+pandas
+openpyxl
+xlsxwriter
+numpy
+
+# PDF Extraction
+PyPDF2
+pdfplumber
+
+# API Server
+fastapi
+uvicorn[standard]
+pydantic
+
+# Utilities
+pyyaml
+fuzzywuzzy
+python-Levenshtein
+python-multipart
