@@ -52,13 +52,24 @@ app = FastAPI(
 cors_origins_env = os.getenv("CORS_ORIGINS", "")
 if cors_origins_env:
     CORS_ORIGINS = [origin.strip() for origin in cors_origins_env.split(",")]
+elif IS_PRODUCTION:
+    # Production defaults - Railway URLs
+    CORS_ORIGINS = [
+        "https://home-health-production.up.railway.app",
+        "https://home-health-dashboard-production.up.railway.app",
+        "https://frontend-production.up.railway.app",
+    ]
 else:
     # Development defaults
     CORS_ORIGINS = ["http://localhost:3000", "http://localhost:3001", "http://localhost:3100"]
 
+# For production, also allow any Railway subdomain via regex
+cors_origin_regex = r"https://.*\.up\.railway\.app" if IS_PRODUCTION else None
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=CORS_ORIGINS,
+    allow_origin_regex=cors_origin_regex,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
