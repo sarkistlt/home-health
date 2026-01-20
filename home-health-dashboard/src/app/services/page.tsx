@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { ArrowUpIcon, ArrowDownIcon, Search, DollarSign } from 'lucide-react'
+import { ArrowUpIcon, ArrowDownIcon, Search } from 'lucide-react'
 
 interface ServiceCostData {
   'Service Type': string

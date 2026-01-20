@@ -2,9 +2,10 @@
 
 import { useEffect, useState, useMemo } from 'react'
 import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
-import { Search, Filter, ChevronDown, ChevronUp, Calendar, DollarSign, TrendingUp, TrendingDown, Download } from 'lucide-react'
+import { Search, ChevronDown, ChevronUp, DollarSign, TrendingUp, TrendingDown, Download } from 'lucide-react'
 
 interface ClaimRecord {
+  [key: string]: string | number | undefined
   'Patient Code': string
   'Patient Name': string
   'Claim Code': string
@@ -23,6 +24,7 @@ interface ClaimRecord {
 }
 
 interface CostRecord {
+  [key: string]: string | number | undefined
   Physician: string
   Patient_Name: string
   Date: string

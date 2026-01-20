@@ -1,8 +1,8 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { DollarSign, Users, FileText, TrendingUp, Activity, AlertCircle } from 'lucide-react'
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts'
+import { DollarSign, Users, TrendingUp, AlertCircle } from 'lucide-react'
+import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts'
 
 interface SummaryMetrics {
   total_patients: number
@@ -60,16 +60,30 @@ export default function Dashboard() {
   }
 
   if (error) {
+    const isNoData = error.includes('Failed to fetch data') || error.includes('404')
     return (
       <div className="p-8">
-        <div className="bg-red-50 border border-red-200 rounded-lg p-6 flex items-center">
-          <AlertCircle className="h-6 w-6 text-red-600 mr-3" />
+        <div className="bg-amber-50 border border-amber-200 rounded-lg p-6 flex items-start">
+          <AlertCircle className="h-6 w-6 text-amber-600 mr-3 flex-shrink-0 mt-0.5" />
           <div>
-            <h3 className="text-red-800 font-medium">Error Loading Data</h3>
-            <p className="text-red-600 text-sm mt-1">{error}</p>
-            <p className="text-red-600 text-sm mt-2">
-              Make sure the API server is running: <code>python3 api_server.py</code>
-            </p>
+            <h3 className="text-amber-800 font-medium">
+              {isNoData ? 'No Analytics Data Available' : 'Error Loading Data'}
+            </h3>
+            <p className="text-amber-700 text-sm mt-1">{error}</p>
+            {isNoData ? (
+              <div className="text-amber-700 text-sm mt-3 space-y-2">
+                <p>The API server is running but no analytics data has been generated yet.</p>
+                <p>To generate analytics data, you need to:</p>
+                <ol className="list-decimal list-inside ml-2 space-y-1">
+                  <li>Place PDF files in the <code className="bg-amber-100 px-1 rounded">data/pdfs</code> directory</li>
+                  <li>Run the ETL pipeline: <code className="bg-amber-100 px-1 rounded">python3 etl_pipeline.py</code></li>
+                </ol>
+              </div>
+            ) : (
+              <p className="text-amber-700 text-sm mt-2">
+                Make sure the API server is running: <code className="bg-amber-100 px-1 rounded">python3 api_server.py</code>
+              </p>
+            )}
           </div>
         </div>
       </div>
@@ -185,7 +199,7 @@ export default function Dashboard() {
                 cx="50%"
                 cy="50%"
                 labelLine={false}
-                label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                label={({ name, percent }) => `${name} ${((percent ?? 0) * 100).toFixed(0)}%`}
                 outerRadius={80}
                 fill="#8884d8"
                 dataKey="value"
