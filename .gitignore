@@ -54,7 +54,6 @@ package-lock.json
 # ============================================
 # Data & Output (sensitive/generated files)
 # ============================================
-data/
 analytics_output/
 outputs/
 
